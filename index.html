@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Price Per Mile Calculator</title>
+  <style>
+    body {
+      background-color: #f4f4f4;
+      font-family: Arial, sans-serif;
+      margin: 0;
+      display: flex;
+      height: 100vh;
+      align-items: center;
+      justify-content: center;
+    }
+    .container {
+      background: #fff;
+      padding: 20px 30px;
+      border-radius: 8px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+      width: 90%;
+      max-width: 400px;
+    }
+    h1 {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    label {
+      display: block;
+      margin-bottom: 5px;
+      font-weight: bold;
+    }
+    input[type="text"],
+    input[type="number"] {
+      width: 100%;
+      padding: 10px;
+      margin-bottom: 15px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      box-sizing: border-box;
+      font-size: 16px;
+    }
+    button {
+      width: 100%;
+      padding: 10px;
+      background: #007BFF;
+      color: #fff;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 16px;
+    }
+    button:hover {
+      background: #0056b3;
+    }
+    .result {
+      margin-top: 20px;
+      text-align: center;
+      font-size: 18px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Price Per Mile Calculator</h1>
+    <form id="calcForm">
+      <label for="price">Car Price:</label>
+      <!-- Using text input so we can format it as USD -->
+      <input type="text" id="price" placeholder="$25,000" required />
+
+      <label for="mileage">Current Mileage:</label>
+      <input type="number" id="mileage" required />
+
+      <button type="submit">Calculate</button>
+    </form>
+    <div class="result" id="result"></div>
+  </div>
+
+  <script>
+    // Formatter for USD
+    const usdFormatter = new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' });
+
+    // Format the price field on blur and remove formatting on focus.
+    const priceInput = document.getElementById("price");
+    priceInput.addEventListener("focus", function() {
+      // Remove all non-digit and non-decimal characters.
+      this.value = this.value.replace(/[^0-9.]/g, '');
+    });
+    priceInput.addEventListener("blur", function() {
+      let value = parseFloat(this.value);
+      if (!isNaN(value)) {
+        this.value = usdFormatter.format(value);
+      }
+    });
+
+    document.getElementById("calcForm").addEventListener("submit", function (e) {
+      e.preventDefault();
+
+      // Remove USD formatting from the price input for calculation.
+      const rawPrice = document.getElementById("price").value.replace(/[^0-9.]/g, '');
+      const price = parseFloat(rawPrice);
+      const mileage = parseFloat(document.getElementById("mileage").value);
+      const resultDiv = document.getElementById("result");
+
+      if (mileage >= 250000) {
+        resultDiv.textContent = "Mileage must be less than 250,000.";
+        resultDiv.style.color = "red";
+        return;
+      }
+
+      const pricePerMile = price / (250000 - mileage);
+      const roundedValue = pricePerMile.toFixed(4);
+      
+      // Determine deal quality using five thresholds.
+      let message = "Price per mile: $" + roundedValue + " - ";
+      if (pricePerMile <= 0.17) {
+        message += "Great deal!";
+        resultDiv.style.color = "green";
+      } else if (pricePerMile <= 0.18) {
+        message += "Good deal.";
+        resultDiv.style.color = "blue";
+      } else if (pricePerMile <= 0.19) {
+        message += "Decent deal.";
+        resultDiv.style.color = "orange";
+      } else if (pricePerMile < 0.2) {
+        message += "Mediocre deal.";
+        resultDiv.style.color = "orangered";
+      } else {
+        message += "Bad deal.";
+        resultDiv.style.color = "red";
+      }
+
+      resultDiv.textContent = message;
+    });
+  </script>
+</body>
+</html>
